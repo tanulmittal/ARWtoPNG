@@ -37,16 +37,16 @@ def arw_to_jpg_maxsize(arw_bytes, max_size=5*1024*1024, min_quality=70, max_qual
 
 if uploaded_files:
     jpg_files = []
-    for uploaded_file in uploaded_files:
-        st.write(f"**Processing:** {uploaded_file.name}")
+    progress_bar = st.progress(0)
+    total_files = len(uploaded_files)
+    for idx, uploaded_file in enumerate(uploaded_files):
         try:
             arw_bytes = uploaded_file.read()
             jpg_buf, used_quality, final_size = arw_to_jpg_maxsize(arw_bytes)
             jpg_files.append((uploaded_file.name.replace(".arw", ".jpg"), jpg_buf.getvalue()))
-            st.image(jpg_buf, caption=f"Converted: {uploaded_file.name} (Quality: {used_quality}, Size: {final_size//1024} KB)", use_container_width=True)
-            st.success(f"Conversion successful for {uploaded_file.name}!")
         except Exception as e:
             st.error(f"Error processing {uploaded_file.name}: {e}")
+        progress_bar.progress((idx + 1) / total_files)
 
     if jpg_files:
         zip_buffer = io.BytesIO()
